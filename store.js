@@ -1,78 +1,16 @@
-/**
- * @typedef {object}
- * @prop {integer} counter
- */
-
-
-/**
- * @typedef {object} State 
- * @prop {'ADD', 'Subtract', 'Reset'} phases 
- * @prop {Record<integer, Task} tasks 
- */
-
-
-/**
- * @callback getstate
- * @returns {State} 
- */
-
-/** 
- * @callback Dispatch 
- * @param {Action} action 
- */
-
-/** 
- * @callback EmptyFn
- */
-
-/** 
- * @callback Subscribe
- * @param {State} prev
- * @param {State} next 
- * @return {EmptyFn}  
- */
-
-
-
-/**
- * @type {Array<Subscribe>}
- */
-const subscribers = []
-
-/**
- * @type {Array<State>}
- */
-const states = []
-
-
-/**
- * @return {State}
- */
-export const getState = () => {
-    return Object.freeze({...states[0]});
-}
-
-/**
- * @param {Action} action
- */
-const dispatch = (action) => {
-  
-}
-
-
-
-
+// Set initial state
 const initialState = {
     counter: 0,
 };
 
+// Set actiontypes
 const actionTypes = {
     INCREMENT: "ADD",
     DECREMENT: "SUBTRACT",
     RESET: "RESET",
 };
 
-// Reducer function
+// Reducer function, to increase, decrease and reset counter 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
       case actionTypes.INCREMENT:
@@ -84,6 +22,35 @@ const reducer = (state = initialState, action) => {
       default:
         return state;
     }
+  }
+
+// Create the store 
+function createStore(reduce) {
+  let state = reducer.state; 
+
+  const subscription = [];
+
+  return {
+      getState() {
+        return Object.freeze({...state[0]});
+      },
+
+      dispatch(action) {
+        const prev = getState();
+        const next = reducer(prev, action);
+
+        subscription.forEach((item) => item());
+      },
+
+      subscribe(subscription){
+        subscribers.push(subscription)
+        const handler = (item) => item != subscription;
+      
+        const newSubscribers = subscribers.filter(handler)
+        subscribers = newSubscribers;
+      }
+
+    };
   }
 
   // Create the store with the reducer
