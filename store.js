@@ -42,7 +42,7 @@ function createStore(reduce) {
         subscription.forEach((item) => item());
       },
 
-      subscribe(subscription){
+      subscribe(subscribers){
         subscribers.push(subscription)
         const handler = (item) => item != subscription;
       
